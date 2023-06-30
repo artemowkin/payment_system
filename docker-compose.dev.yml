@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/postgresql/data
+  redis:
+    image: redis:latest
+  app:
+    build:
+      context: backend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    volumes:
+      - ./backend/app:/src/app
+    depends_on:
+      - db
+      - redis
+    command: pdm run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - 8000:8000
+  front:
+    build:
+      context: frontend
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    volumes:
+      - ./frontend/app/src/:/src/src/
+    ports:
+      - 5173:5173
+  nginx:
+    build:
+      context: proxy
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - app
+      - front
+    ports:
+      - 8080:80
+
+volumes:
+  db:

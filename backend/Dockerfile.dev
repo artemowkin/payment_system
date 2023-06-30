@@ -1,0 +1,10 @@
+FROM python:3.10
+
+WORKDIR /src/
+
+RUN pip install -U pdm
+
+COPY ./pyproject.toml .
+COPY ./pdm.lock .
+
+RUN pdm install

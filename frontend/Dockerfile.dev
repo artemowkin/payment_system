@@ -1,0 +1,6 @@
+FROM node:latest
+
+WORKDIR /src/
+COPY ./app/ /src
+
+RUN npm install
